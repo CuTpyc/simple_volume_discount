@@ -1,0 +1,102 @@
+Subject: [PATCH] backup for last migrations
+---
+Index: source/prisma/migrations/20241030215820_refactored_schema/migration.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/source/prisma/migrations/20241030215820_refactored_schema/migration.sql b/source/prisma/migrations/20241030215820_refactored_schema/migration.sql
+new file mode 100644
+--- /dev/null	(date 1730325500061)
++++ b/source/prisma/migrations/20241030215820_refactored_schema/migration.sql	(date 1730325500061)
+@@ -0,0 +1,12 @@
++/*
++  Warnings:
++
++  - You are about to alter the column `totalPrice` on the `Order` table. The data in that column could be lost. The data in that column will be cast from `Decimal(65,30)` to `Decimal(10,2)`.
++  - You are about to alter the column `cost` on the `Return` table. The data in that column could be lost. The data in that column will be cast from `Decimal(65,30)` to `Decimal(10,2)`.
++
++*/
++-- AlterTable
++ALTER TABLE "Order" ALTER COLUMN "totalPrice" SET DATA TYPE DECIMAL(10,2);
++
++-- AlterTable
++ALTER TABLE "Return" ALTER COLUMN "cost" SET DATA TYPE DECIMAL(10,2);
+Index: source/prisma/migrations/20241030215037_refactored_relations/migration.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/source/prisma/migrations/20241030215037_refactored_relations/migration.sql b/source/prisma/migrations/20241030215037_refactored_relations/migration.sql
+new file mode 100644
+--- /dev/null	(date 1730325037476)
++++ b/source/prisma/migrations/20241030215037_refactored_relations/migration.sql	(date 1730325037476)
+@@ -0,0 +1,68 @@
++-- DropForeignKey
++ALTER TABLE "Customer" DROP CONSTRAINT "Customer_shopId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "LineItem" DROP CONSTRAINT "LineItem_orderId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "Order" DROP CONSTRAINT "Order_customerId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "Order" DROP CONSTRAINT "Order_shopId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "Product" DROP CONSTRAINT "Product_shopId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "Return" DROP CONSTRAINT "Return_customerId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "Return" DROP CONSTRAINT "Return_shopId_fkey";
++
++-- DropForeignKey
++ALTER TABLE "SyncOrdersTask" DROP CONSTRAINT "SyncOrdersTask_shopId_fkey";
++
++-- AlterTable
++ALTER TABLE "Customer" ALTER COLUMN "shopId" SET DATA TYPE TEXT;
++
++-- AlterTable
++ALTER TABLE "LineItem" ALTER COLUMN "orderId" SET DATA TYPE TEXT;
++
++-- AlterTable
++ALTER TABLE "Order" ALTER COLUMN "shopId" SET DATA TYPE TEXT,
++ALTER COLUMN "customerId" SET DATA TYPE TEXT;
++
++-- AlterTable
++ALTER TABLE "Product" ALTER COLUMN "shopId" SET DATA TYPE TEXT;
++
++-- AlterTable
++ALTER TABLE "Return" ALTER COLUMN "orderId" SET DATA TYPE TEXT,
++ALTER COLUMN "shopId" SET DATA TYPE TEXT,
++ALTER COLUMN "customerId" SET DATA TYPE TEXT;
++
++-- AlterTable
++ALTER TABLE "SyncOrdersTask" ALTER COLUMN "shopId" SET DATA TYPE TEXT;
++
++-- AddForeignKey
++ALTER TABLE "Customer" ADD CONSTRAINT "Customer_shopId_fkey" FOREIGN KEY ("shopId") REFERENCES "Shop"("domain") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "Order" ADD CONSTRAINT "Order_shopId_fkey" FOREIGN KEY ("shopId") REFERENCES "Shop"("domain") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "Order" ADD CONSTRAINT "Order_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("shopifyId") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "LineItem" ADD CONSTRAINT "LineItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("shopifyId") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "Product" ADD CONSTRAINT "Product_shopId_fkey" FOREIGN KEY ("shopId") REFERENCES "Shop"("domain") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "Return" ADD CONSTRAINT "Return_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("shopifyId") ON DELETE RESTRICT ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "Return" ADD CONSTRAINT "Return_shopId_fkey" FOREIGN KEY ("shopId") REFERENCES "Shop"("domain") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "SyncOrdersTask" ADD CONSTRAINT "SyncOrdersTask_shopId_fkey" FOREIGN KEY ("shopId") REFERENCES "Shop"("domain") ON DELETE RESTRICT ON UPDATE CASCADE;
