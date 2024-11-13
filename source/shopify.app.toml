@@ -3,18 +3,18 @@
 client_id = "282f8a7dac177dea83cd4218204c7096"
 name = "simple-discount-app"
 handle = "simple-discount-app-2"
-application_url = "https://contributions-dod-layout-deal.trycloudflare.com"
+application_url = "https://towers-trick-generic-when.trycloudflare.com"
 embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products"
+scopes = "write_products,write_discounts, write_discounts_allocator_functions, write_price_rules,read_price_rules,read_products"
 
 [auth]
 redirect_urls = [
-  "https://contributions-dod-layout-deal.trycloudflare.com/auth/callback",
-  "https://contributions-dod-layout-deal.trycloudflare.com/auth/shopify/callback",
-  "https://contributions-dod-layout-deal.trycloudflare.com/api/auth/callback"
+  "https://towers-trick-generic-when.trycloudflare.com/auth/callback",
+  "https://towers-trick-generic-when.trycloudflare.com/auth/shopify/callback",
+  "https://towers-trick-generic-when.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
@@ -30,3 +30,4 @@ embedded = false
 [build]
 dev_store_url = "store-for-returns.myshopify.com"
 automatically_update_urls_on_dev = true
+include_config_on_deploy = true

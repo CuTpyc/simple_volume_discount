@@ -30,3 +30,42 @@ model Session {
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
 }
+
+model Shop {
+  id        Int      @id @default(autoincrement())
+  shop      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  funells Funells[]
+}
+
+model Funells {
+  id            Int             @id @default(autoincrement())
+  shopId        Int
+  title         String
+  createdAt     DateTime        @default(now())
+  shop          Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  products      Products[]
+  FunellsVolume FunellsVolume[]
+}
+
+model Products {
+  id        Int      @id @default(autoincrement())
+  shopId    Int
+  funellId  Int
+  shopifyId String   @unique
+  title     String
+  createdAt DateTime @default(now())
+  funells   Funells  @relation(fields: [funellId], references: [id], onDelete: Cascade)
+}
+
+model FunellsVolume {
+  id           Int      @id @default(autoincrement())
+  shopId       Int
+  funellId     Int
+  volume       Int
+  discount     Int
+  createdAt    DateTime @default(now())
+  funellsValue Funells  @relation(fields: [funellId], references: [id], onDelete: Cascade)
+}
