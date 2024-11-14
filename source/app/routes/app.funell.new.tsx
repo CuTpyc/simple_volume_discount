@@ -11,6 +11,7 @@ import React from "react";
 import {Form} from "@remix-run/react";
 import SetFunellName from "../Components/setFunellName";
 import SetFunnelProducts from "../Components/SetFunnelProducts";
+import DiscountConfiguration from "../Components/SetFunnelVolumes";
 
 export const loader: LoaderFunction = async ({request}) => {
   return null;
@@ -42,6 +43,7 @@ export default function NewFunnel() {
                 <FormLayout>
                   <SetFunellName/>
                   <SetFunnelProducts/>
+                  <DiscountConfiguration/>
                 </FormLayout>
 
               </Card>
