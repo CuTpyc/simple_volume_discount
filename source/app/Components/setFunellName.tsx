@@ -1,7 +1,7 @@
-import {Button, TextField,} from '@shopify/polaris';
+import {TextField} from '@shopify/polaris';
 import React, {useState, useCallback} from 'react';
 
-export default function HelpTextExample() {
+export default function SetFunellName() {
   const [textFieldValue, setTextFieldValue] = useState(
     'New funell',
   );

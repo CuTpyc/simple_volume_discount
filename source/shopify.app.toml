@@ -3,7 +3,7 @@
 client_id = "282f8a7dac177dea83cd4218204c7096"
 name = "simple-discount-app"
 handle = "simple-discount-app-2"
-application_url = "https://towers-trick-generic-when.trycloudflare.com"
+application_url = "https://traditional-couple-westminster-forbidden.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -12,9 +12,9 @@ scopes = "write_products,write_discounts, write_discounts_allocator_functions, w
 
 [auth]
 redirect_urls = [
-  "https://towers-trick-generic-when.trycloudflare.com/auth/callback",
-  "https://towers-trick-generic-when.trycloudflare.com/auth/shopify/callback",
-  "https://towers-trick-generic-when.trycloudflare.com/api/auth/callback"
+  "https://traditional-couple-westminster-forbidden.trycloudflare.com/auth/callback",
+  "https://traditional-couple-westminster-forbidden.trycloudflare.com/auth/shopify/callback",
+  "https://traditional-couple-westminster-forbidden.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

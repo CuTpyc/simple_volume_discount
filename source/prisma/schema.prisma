@@ -56,6 +56,7 @@ model Products {
   funellId  Int
   shopifyId String   @unique
   title     String
+  handle    String
   createdAt DateTime @default(now())
   funells   Funells  @relation(fields: [funellId], references: [id], onDelete: Cascade)
 }
