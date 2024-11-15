@@ -30,6 +30,7 @@ export default function NewFunnel() {
 
   return (
     <Form method="post">
+
       {/*<input type="hidden" name="returnedStatus" value={'Hello world'}/>*/}
       <Page
         backAction={{content: 'Settings', url: '/app/funells-table'}}

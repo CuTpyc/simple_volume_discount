@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { Card, Button, TextField, Select, Checkbox } from '@shopify/polaris';
+import { Card, Button, TextField, Checkbox } from '@shopify/polaris';
 import { XIcon } from '@shopify/polaris-icons';
 
 type DiscountLevel = {
   volume: string;
-  discountType: string;
   discount: string;
   description: string;
   label: string;
+  isCustomDescription: boolean;
 };
 
 function DiscountConfiguration() {
+  const [discountVolume, setDiscountVolume] = useState("3");
+  const [discountAmount, setDiscountAmount] = useState("5");
+
   const [discountLevels, setDiscountLevels] = useState<DiscountLevel[]>([
-    { volume: '3', discountType: '%', discount: '5', description: '5% discount', label: '-5%' },
+    {
+      volume: `${discountVolume}`,
+      discount: `${discountAmount}`,
+      description: `${discountAmount}% discount`,
+      label: `-${discountAmount}%`,
+      isCustomDescription: false,
+    },
   ]);
 
   const [autoLabels, setAutoLabels] = useState(true);
@@ -20,7 +29,7 @@ function DiscountConfiguration() {
   const handleAddDiscountLevel = () => {
     setDiscountLevels([
       ...discountLevels,
-      { volume: '', discountType: '%', discount: '', description: '', label: '' },
+      { volume: '0', discount: '0', description: '', label: '', isCustomDescription: false },
     ]);
   };
 
@@ -29,45 +38,80 @@ function DiscountConfiguration() {
   };
 
   const updateDiscountLevel = (index: number, field: keyof DiscountLevel, value: string) => {
+    // Устанавливаем значение в 0, если оно меньше 0
+    const sanitizedValue = parseInt(value) < 0 ? '0' : value;
+    const updatedLevels = discountLevels.map((level, i) => {
+      if (i === index) {
+        const updatedLevel = { ...level, [field]: sanitizedValue };
+
+        if (autoLabels && field === 'discount') {
+          updatedLevel.label = `-${sanitizedValue}%`;
+        }
+
+        if (autoLabels && field === 'discount' && !updatedLevel.isCustomDescription) {
+          updatedLevel.description = `${sanitizedValue}% discount`;
+        }
+
+        return updatedLevel;
+      }
+      return level;
+    });
+    setDiscountLevels(updatedLevels);
+  };
+
+  const handleDescriptionChange = (index: number, value: string) => {
     const updatedLevels = discountLevels.map((level, i) =>
-      i === index ? { ...level, [field]: value } : level
+      i === index
+        ? { ...level, description: value, isCustomDescription: true }
+        : level
     );
     setDiscountLevels(updatedLevels);
+  };
+
+  const handleAutoLabelsChange = (newChecked: boolean) => {
+    setAutoLabels(newChecked);
+    if (newChecked) {
+      const updatedLevels = discountLevels.map((level) => ({
+        ...level,
+        label: `-${level.discount}%`,
+        description: level.isCustomDescription ? level.description : `${level.discount}% discount`,
+      }));
+      setDiscountLevels(updatedLevels);
+    }
   };
 
   return (
     <Card>
       {discountLevels.map((level, index) => (
-        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <Button icon={XIcon} onClick={() => handleRemoveDiscountLevel(index)} />
+        <div key={index} style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
+          <Button icon={XIcon} onClick={() => handleRemoveDiscountLevel(index)}/>
 
           <TextField
             label="Volume"
             type="number"
             value={level.volume}
-            onChange={(value) => updateDiscountLevel(index, 'volume', value)}
+            onChange={(value) => {
+              updateDiscountLevel(index, 'volume', value);
+              setDiscountVolume(value);
+            }}
             autoComplete="off"
-          />
-
-          <Select
-            label="Discount Type"
-            options={[{ label: '%', value: '%' }, { label: 'Amount', value: 'amount' }]}
-            value={level.discountType}
-            onChange={(value) => updateDiscountLevel(index, 'discountType', value)}
           />
 
           <TextField
             label="Discount"
             type="number"
             value={level.discount}
-            onChange={(value) => updateDiscountLevel(index, 'discount', value)}
+            onChange={(value) => {
+              updateDiscountLevel(index, 'discount', value);
+              setDiscountAmount(value);
+            }}
             autoComplete="off"
           />
 
           <TextField
             label="Description"
             value={level.description}
-            onChange={(value) => updateDiscountLevel(index, 'description', value)}
+            onChange={(value) => handleDescriptionChange(index, value)}
             autoComplete="off"
           />
 
@@ -76,7 +120,11 @@ function DiscountConfiguration() {
             value={level.label}
             onChange={(value) => updateDiscountLevel(index, 'label', value)}
             autoComplete="off"
+            disabled={autoLabels}
           />
+
+          <input type="hidden" name={`discountLevels[${index}][volume]`} value={level.volume}/>
+          <input type="hidden" name={`discountLevels[${index}][discount]`} value={level.discount}/>
         </div>
       ))}
 
@@ -85,7 +133,7 @@ function DiscountConfiguration() {
       <Checkbox
         label="Automatic labels (recommended)"
         checked={autoLabels}
-        onChange={(newChecked) => setAutoLabels(newChecked)}
+        onChange={handleAutoLabelsChange}
       />
     </Card>
   );
