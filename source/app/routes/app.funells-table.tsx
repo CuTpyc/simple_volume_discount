@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Page,
   Button,
@@ -7,112 +7,106 @@ import {
   LegacyStack,
   Link,
   Text,
-  Icon, Layout, BlockStack
-} from '@shopify/polaris';
-import { DeleteIcon, ChartHistogramGrowthIcon } from '@shopify/polaris-icons';
-import {ActionFunction} from "@remix-run/node";
-import {getAdminContext} from "../shopify.server";
+  Icon,
+  Layout,
+  BlockStack,
+} from "@shopify/polaris";
+import { DeleteIcon, ChartHistogramGrowthIcon } from "@shopify/polaris-icons";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react"; // Import to use loader data in component
+import { getAdminContext } from "../shopify.server";
 
-
-export const action: ActionFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const adminContext = await getAdminContext(request);
-  const {shop} = adminContext.session;
+  const { shop } = adminContext.session;
 
   const currentShop = await prisma.shop.findUnique({
     where: {
-      shop
-    }
-  })
-  console.log('\n\n\n', "currentShop-----action", "\n\n\n", currentShop)
+      shop,
+    },
+  });
+
   if (!currentShop) {
-    throw new Error('Shop not found');
+    throw new Error("Shop not found");
   }
 
-  const funnel = await prisma.funells.create({
-    data: {
-      shopId: currentShop.id,
-      title: 'New offer',
-    }
-  })
-  console.log('\n\n\n', "funnel-----action", "\n\n\n", funnel)
+  const funells = await prisma.funells.findMany({
+    where: {shopId: currentShop.id},
+  }); // Fetch all funells from DB
+  console.log("\n\n\n", funells, "\n\n\n", 'funells')
+  return funells;
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const adminContext = await getAdminContext(request);
+  const { shop } = adminContext.session;
+
+  const currentShop = await prisma.shop.findUnique({
+    where: {
+      shop,
+    },
+  });
+
+  if (!currentShop) {
+    throw new Error("Shop not found");
+  }
+
   return null;
 };
 
-function OffersList() {
-  const [items, setItems] = useState([
-    {
-      name: 'ATOP DISCOUNT SCHEDULE - TRANSCIEVERS',
-      date: '30/08/2023',
-      products: 5,
-    },
-    {
-      name: 'My first offer',
-      date: '19/08/2023',
-      products: 10,
-    },
-  ]);
+export default function OffersList() {
+  const funnels = useLoaderData(); // Загрузка данных
+  const [items, setItems] = useState(funnels); // Состояние
 
-  const rows = items.map((item, index) => [
-    <LegacyStack  key={index}>
-      <Icon source={ChartHistogramGrowthIcon}  />
-      <Link removeUnderline url={"/app"}>{item.name}</Link>
+  const rows = items.map((funnel: any) => [
+    <LegacyStack key={funnel.id}>
+      <Icon source={ChartHistogramGrowthIcon} />
+      <Link removeUnderline url={`/app/funell/${funnel.id}`}>
+        {funnel.title}
+      </Link>
     </LegacyStack>,
-    <Text  as="span">{item.date}</Text>,
-    <Text as="span" >{item.products}</Text>,
-    <Button variant={"primary"} tone={"critical"} icon={DeleteIcon} onClick={() => handleDelete(index)}/>
-
+    <Text as="span">{new Date(funnel.createdAt).toLocaleDateString()}</Text>,
+    <Button
+      variant="primary"
+      tone="critical"
+      icon={DeleteIcon}
+      onClick={() => handleDelete(funnel.id)}
+    />,
   ]);
 
-  const handleDelete = (index: any) => {
-    const newItems = items.filter((_, i) => i !== index);
+  const handleDelete = (id: number) => {
+    const newItems = items.filter((item: any) => item.id !== id);
     setItems(newItems);
   };
 
-  const primaryAction = <Button size="medium" url="/app/funell/new"  variant={"primary"} tone={"success"}>Create new funell</Button>
+  const primaryAction = (
+    <Button size="medium" url="/app/funell/new" variant="primary" tone="success">
+      Create new funell
+    </Button>
+  );
 
   return (
-    <Page
-      title="Offers list"
-      primaryAction={
-        primaryAction
-      }
-      fullWidth
 
-    >
-      <Layout >
-        <Layout.Section >
-          <BlockStack gap="500" >
+    <Page title="Offers list" primaryAction={primaryAction} fullWidth>
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="500">
             <Card>
               <DataTable
-                columnContentTypes={[
-                  'text',
-                  'numeric',
-                  'numeric',
-                  'text',
-                ]}
-                headings={[
-                  'Funells name',
-                  'Creation data',
-                  'Products',
-                  'Action',
-                ]}
-
+                columnContentTypes={["text", "text", "text"]}
+                headings={["Funells name", "Creation date", "Action"]}
                 rows={rows}
                 pagination={{
                   hasNext: true,
                   label: `Page 1 of 1`,
-                  onNext: () => {},
+                  onNext: () => {}, // Логика для следующей страницы
                 }}
               />
             </Card>
-
           </BlockStack>
-
         </Layout.Section>
-
       </Layout>
     </Page>
   );
 }
 
-export default OffersList;

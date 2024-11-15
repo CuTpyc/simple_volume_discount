@@ -2,11 +2,11 @@ import {BlockStack, Button, Card, FormLayout, Layout, Page, PageActions,} from '
 import {ActionFunction, LoaderFunction, redirect} from "@remix-run/node";
 import React from "react";
 import {Form, useLoaderData} from "@remix-run/react";
-import SetFunellName from "../Components/setFunellName";
-import DiscountConfiguration from "../Components/SetFunnelVolumes";
+import SetFunellName from "../Components/CreateFunnel/setFunellName";
+import DiscountConfiguration from "../Components/CreateFunnel/SetFunnelVolumes";
 import {getAdminContext} from "../shopify.server";
 import {concatenateVolumeAndDiscount} from "../Utils/concatDiscountAndVolumes";
-import {SetFunnelProducts} from "../Components/SetFunnelProducts";
+import {SetFunnelProducts} from "../Components/CreateFunnel/SetFunnelProducts";
 
 type Product = {
   shopifyId: string;
