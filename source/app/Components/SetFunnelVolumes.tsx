@@ -38,8 +38,7 @@ function DiscountConfiguration() {
   };
 
   const updateDiscountLevel = (index: number, field: keyof DiscountLevel, value: string) => {
-    // Устанавливаем значение в 0, если оно меньше 0
-    const sanitizedValue = parseInt(value) < 0 ? '0' : value;
+    const sanitizedValue = parseInt(value) < 0 ? '0' : value; // Предотвращаем отрицательные значения
     const updatedLevels = discountLevels.map((level, i) => {
       if (i === index) {
         const updatedLevel = { ...level, [field]: sanitizedValue };
@@ -83,8 +82,8 @@ function DiscountConfiguration() {
   return (
     <Card>
       {discountLevels.map((level, index) => (
-        <div key={index} style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
-          <Button icon={XIcon} onClick={() => handleRemoveDiscountLevel(index)}/>
+        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <Button icon={XIcon} onClick={() => handleRemoveDiscountLevel(index)} />
 
           <TextField
             label="Volume"
@@ -122,9 +121,6 @@ function DiscountConfiguration() {
             autoComplete="off"
             disabled={autoLabels}
           />
-
-          <input type="hidden" name={`discountLevels[${index}][volume]`} value={level.volume}/>
-          <input type="hidden" name={`discountLevels[${index}][discount]`} value={level.discount}/>
         </div>
       ))}
 
@@ -134,6 +130,15 @@ function DiscountConfiguration() {
         label="Automatic labels (recommended)"
         checked={autoLabels}
         onChange={handleAutoLabelsChange}
+      />
+
+      {/* Скрытое поле для передачи всех уровней скидок */}
+      <input
+        type="hidden"
+        name="discountLevelsJSON"
+        value={JSON.stringify(
+          discountLevels.map(({volume, discount}) => ({volume, discount}))
+        )}
       />
     </Card>
   );

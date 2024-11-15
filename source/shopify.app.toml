@@ -3,7 +3,7 @@
 client_id = "282f8a7dac177dea83cd4218204c7096"
 name = "simple-discount-app"
 handle = "simple-discount-app-2"
-application_url = "https://bathroom-lamps-shopping-accommodations.trycloudflare.com"
+application_url = "https://stores-mid-head-cool.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -12,9 +12,9 @@ scopes = "write_products,write_discounts, write_discounts_allocator_functions, w
 
 [auth]
 redirect_urls = [
-  "https://bathroom-lamps-shopping-accommodations.trycloudflare.com/auth/callback",
-  "https://bathroom-lamps-shopping-accommodations.trycloudflare.com/auth/shopify/callback",
-  "https://bathroom-lamps-shopping-accommodations.trycloudflare.com/api/auth/callback"
+  "https://stores-mid-head-cool.trycloudflare.com/auth/callback",
+  "https://stores-mid-head-cool.trycloudflare.com/auth/shopify/callback",
+  "https://stores-mid-head-cool.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

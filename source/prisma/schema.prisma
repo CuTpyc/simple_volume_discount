@@ -38,6 +38,8 @@ model Shop {
   updatedAt DateTime @updatedAt
 
   funells Funells[]
+
+  @@index([shop], name: "shop_unique")
 }
 
 model Funells {
@@ -56,9 +58,11 @@ model Products {
   funellId  Int
   shopifyId String   @unique
   title     String
-  handle    String
+  image     String
   createdAt DateTime @default(now())
   funells   Funells  @relation(fields: [funellId], references: [id], onDelete: Cascade)
+
+  @@index([shopifyId], name: "shopifyId_unique")
 }
 
 model FunellsVolume {
@@ -69,4 +73,6 @@ model FunellsVolume {
   discount     Int
   createdAt    DateTime @default(now())
   funellsValue Funells  @relation(fields: [funellId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, funellId], name: "shopId_funellId_unique")
 }

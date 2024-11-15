@@ -1,5 +1,5 @@
 import { InlineGrid, InlineStack, Card, Button, Text, Banner, Thumbnail } from "@shopify/polaris";
-import { useState } from "react";
+import { FC, useState } from "react";
 
 // Define a type for the product structure
 type Product = {
@@ -8,15 +8,24 @@ type Product = {
   image: string;
 };
 
-export default function SetFunnelProducts() {
+type ExistingProduct = {
+  shopifyId: string;
+};
+
+export interface ListProps {
+  existingProductsId: ExistingProduct[];
+}
+
+export const SetFunnelProducts: FC<ListProps> = ({ existingProductsId }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [warning, setWarning] = useState(false);
+  const [existingProductTitles, setExistingProductTitles] = useState<string[]>([]); // To store titles of existing products
 
   async function selectProducts() {
     try {
       const result = await window.shopify.resourcePicker({
-        type: 'product',
-        action: 'select',
+        type: "product",
+        action: "select",
         multiple: true,
       });
 
@@ -24,20 +33,35 @@ export default function SetFunnelProducts() {
         const selectedProducts = result.selection.map((product: any) => ({
           id: product.id,
           title: product.title,
-          image: product.images[0]?.originalSrc || '',
+          image: product.images[0]?.originalSrc || "",
         }));
 
-        // Check for existing offers (placeholder condition)
-        const hasExistingOffer = selectedProducts.some(product => /* condition to check existing offers */ false);
-        setWarning(hasExistingOffer);
+        // Filter out products that already exist in the database
+        const alreadyExistingProducts = selectedProducts.filter((product) =>
+          existingProductsId.some((existing) => existing.shopifyId === product.id)
+        );
 
-        // Combine existing products with newly selected ones, avoiding duplicates
-        setProducts(prevProducts => [
-          ...prevProducts,
-          ...selectedProducts.filter(newProduct =>
-            !prevProducts.some(existingProduct => existingProduct.id === newProduct.id)
-          )
-        ]);
+        // Extract titles of existing products for warning
+        const existingTitles = alreadyExistingProducts.map((product) => product.title);
+
+        // Set warning if there are existing products
+        if (existingTitles.length > 0) {
+          setWarning(true);
+          setExistingProductTitles(existingTitles);
+        } else {
+          setWarning(false);
+          setExistingProductTitles([]);
+        }
+
+        // Filter new products to exclude existing ones and avoid duplicates in the current state
+        const newProducts = selectedProducts.filter(
+          (product) =>
+            !alreadyExistingProducts.some((existing) => existing.id === product.id) &&
+            !products.some((existingProduct) => existingProduct.id === product.id)
+        );
+
+        // Update the state with new products
+        setProducts((prevProducts) => [...prevProducts, ...newProducts]);
       }
     } catch (error) {
       console.error("Error selecting products:", error);
@@ -45,12 +69,11 @@ export default function SetFunnelProducts() {
   }
 
   const handleProductRemove = (id: string) => {
-    setProducts(products.filter(product => product.id !== id));
+    setProducts(products.filter((product) => product.id !== id));
   };
 
-
   return (
-    <div style={{ maxWidth: "100%", display: 'block', gap: "20px" }}>
+    <div style={{ maxWidth: "100%", display: "block", gap: "20px" }}>
       <Text as="h2" fontWeight="bold">
         Apply offer to
       </Text>
@@ -61,39 +84,40 @@ export default function SetFunnelProducts() {
       </div>
 
       <div style={{ marginTop: "20px" }}>
-          {products.map((product) => (
-            <div style={{ marginBottom: "10px" }} key={product.id}>
-              <Card>
-                <InlineGrid columns={['oneHalf', 'oneHalf']} alignItems="center">
-                  <div style={{ display: 'flex', gap: "20px", alignItems: 'center' }}>
-                    <Thumbnail source={product.image || ''} alt={product.title} />
-                    <Text as="span" variant="headingMd">
-                      {product.title}
-                    </Text>
-                  </div>
-                  <InlineStack align="end">
-                    <Button variant="plain" onClick={() => handleProductRemove(product.id)}>
-                      X
-                    </Button>
-                  </InlineStack>
-                </InlineGrid>
-              </Card>
+        {products.map((product) => (
+          <div style={{ marginBottom: "10px" }} key={product.id}>
+            <Card>
+              <InlineGrid columns={["oneHalf", "oneHalf"]} alignItems="center">
+                <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                  <Thumbnail source={product.image || ""} alt={product.title} />
+                  <Text as="span" variant="headingMd">
+                    {product.title}
+                  </Text>
+                </div>
+                <InlineStack align="end">
+                  <Button variant="plain" onClick={() => handleProductRemove(product.id)}>
+                    X
+                  </Button>
+                </InlineStack>
+              </InlineGrid>
+            </Card>
 
-              {/* Скрытые инпуты для отправки данных продукта */}
-              <input type="hidden" name="products[]" value={String(product.id)} />
-              <input type="hidden" name="titles[]" value={String(product.title)} />
-              <input type="hidden" name="images[]" value={String(product.image)} />
-            </div>
-          ))}
+            {/* Hidden inputs for sending product data */}
+            <input type="hidden" name="products" value={JSON.stringify(products)} />
+          </div>
+        ))}
 
-          {warning && (
-            <Banner tone="warning" title="These products are already used in another offer">
-              <p>Only one offer can be configured per product</p>
-            </Banner>
-          )}
-
-
+        {warning && (
+          <Banner tone="warning" title="Some products are already in another offer">
+            <p>Only one offer can be configured per product. The following products are already used:</p>
+            <ul>
+              {existingProductTitles.map((title, index) => (
+                <li key={index}>{title}</li>
+              ))}
+            </ul>
+          </Banner>
+        )}
       </div>
     </div>
   );
-}
+};
